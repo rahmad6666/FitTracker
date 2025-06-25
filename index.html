@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitTracker - Pelacak Aktivitas Fitness Harian</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            text-align: center;
+            border-left: 5px solid;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card.calories {
+            border-color: #e74c3c;
+        }
+
+        .card.exercise {
+            border-color: #27ae60;
+        }
+
+        .card.water {
+            border-color: #3498db;
+        }
+
+        .card h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .card .amount {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .card.calories .amount {
+            color: #e74c3c;
+        }
+
+        .card.exercise .amount {
+            color: #27ae60;
+        }
+
+        .card.water .amount {
+            color: #3498db;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .form-section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+
+        .form-section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #34495e;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #e74c3c;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .btn.exercise-btn {
+            background: linear-gradient(135deg, #27ae60, #219a52);
+        }
+
+        .btn.water-btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+
+        .activities {
+            grid-column: 1 / -1;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+
+        .activities h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+        }
+
+        .activity-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid;
+            transition: all 0.3s ease;
+        }
+
+        .activity-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .activity-item.exercise {
+            border-color: #27ae60;
+        }
+
+        .activity-item.food {
+            border-color: #e74c3c;
+        }
+
+        .activity-item.water {
+            border-color: #3498db;
+        }
+
+        .activity-info {
+            flex: 1;
+        }
+
+        .activity-info h4 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .activity-info p {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .activity-value {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .activity-value.exercise {
+            color: #27ae60;
+        }
+
+        .activity-value.food {
+            color: #e74c3c;
+        }
+
+        .activity-value.water {
+            color: #3498db;
+        }
+
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 12px;
+        }
+
+        .delete-btn:hover {
+            background: #c0392b;
+        }
+
+        .no-activities {
+            text-align: center;
+            color: #7f8c8d;
+            padding: 40px;
+            font-style: italic;
+        }
+
+        .progress-bar {
+            background: #ecf0f1;
+            border-radius: 10px;
+            height: 8px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-fill.calories {
+            background: #e74c3c;
+        }
+
+        .progress-fill.exercise {
+            background: #27ae60;
+        }
+
+        .progress-fill.water {
+            background: #3498db;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .summary-cards {
+                grid-template-columns: 1fr;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💪 FitTracker</h1>
+            <p>Pantau Aktivitas Fitness dan Kesehatan Harian Anda</p>
+        </div>
+
+        <div class="summary-cards">
+            <div class="card calories">
+                <h3>Kalori Terbakar</h3>
+                <div class="amount" id="totalCalories">0 kcal</div>
+                <p>Target: 2000 kcal</p>
+                <div class="progress-bar">
+                    <div class="progress-fill calories" id="caloriesProgress"></div>
+                </div>
+            </div>
+            <div class="card exercise">
+                <h3>Waktu Latihan</h3>
+                <div class="amount" id="totalExercise">0 menit</div>
+                <p>Target: 60 menit</p>
+                <div class="progress-bar">
+                    <div class="progress-fill exercise" id="exerciseProgress"></div>
+                </div>
+            </div>
+            <div class="card water">
+                <h3>Air Minum</h3>
+                <div class="amount" id="totalWater">0 L</div>
+                <p>Target: 2 L</p>
+                <div class="progress-bar">
+                    <div class="progress-fill water" id="waterProgress"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="form-section">
+                <h2>🏃‍♂️ Tambah Latihan</h2>
+                <form id="exerciseForm">
+                    <div class="form-group">
+                        <label for="exerciseType">Jenis Latihan</label>
+                        <select id="exerciseType" required>
+                            <option value="">Pilih Latihan</option>
+                            <option value="Lari">🏃‍♂️ Lari</option>
+                            <option value="Bersepeda">🚴‍♂️ Bersepeda</option>
+                            <option value="Renang">🏊‍♂️ Renang</option>
+                            <option value="Gym">💪 Gym/Angkat Beban</option>
+                            <option value="Yoga">🧘‍♀️ Yoga</option>
+                            <option value="Push Up">💪 Push Up</option>
+                            <option value="Sit Up">🤸‍♂️ Sit Up</option>
+                            <option value="Jalan Kaki">🚶‍♂️ Jalan Kaki</option>
+                            <option value="Lainnya">🏋️‍♀️ Lainnya</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="exerciseDuration">Durasi (menit)</label>
+                        <input type="number" id="exerciseDuration" placeholder="30" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="caloriesBurned">Kalori Terbakar (kcal)</label>
+                        <input type="number" id="caloriesBurned" placeholder="200" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="exerciseDate">Tanggal</label>
+                        <input type="date" id="exerciseDate" required>
+                    </div>
+                    <button type="submit" class="btn exercise-btn">Tambah Latihan</button>
+                </form>
+            </div>
+
+            <div class="form-section">
+                <h2>💧 Tambah Konsumsi Air</h2>
+                <form id="waterForm">
+                    <div class="form-group">
+                        <label for="waterAmount">Jumlah Air (ml)</label>
+                        <select id="waterAmount" required>
+                            <option value="">Pilih Jumlah</option>
+                            <option value="250">🥤 Gelas (250ml)</option>
+                            <option value="500">🍼 Botol Kecil (500ml)</option>
+                            <option value="750">🍼 Botol Sedang (750ml)</option>
+                            <option value="1000">🍼 Botol Besar (1L)</option>
+                            <option value="1500">🍼 Botol XL (1.5L)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="waterTime">Waktu</label>
+                        <input type="time" id="waterTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="waterDate">Tanggal</label>
+                        <input type="date" id="waterDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="waterNotes">Catatan (Opsional)</label>
+                        <input type="text" id="waterNotes" placeholder="Misal: Setelah olahraga, pagi hari">
+                    </div>
+                    <button type="submit" class="btn water-btn">Tambah Konsumsi Air</button>
+                </form>
+            </div>
+
+            <div class="activities">
+                <h2>📊 Riwayat Aktivitas Hari Ini</h2>
+                <div id="activityList" class="activity-list">
+                    <div class="no-activities">
+                        Belum ada aktivitas hari ini. Mulai tambahkan latihan atau konsumsi air!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class FitTracker {
+            constructor() {
+                this.activities = JSON.parse(localStorage.getItem('fitActivities')) || [];
+                this.targets = {
+                    calories: 2000,
+                    exercise: 60,
+                    water: 2000
+                };
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+                this.setDefaultDates();
+                this.updateDisplay();
+            }
+
+            bindEvents() {
+                document.getElementById('exerciseForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.addExercise();
+                });
+
+                document.getElementById('waterForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.addWater();
+                });
+            }
+
+            setDefaultDates() {
+                const today = new Date().toISOString().split('T')[0];
+                const now = new Date().toTimeString().slice(0,5);
+                
+                document.getElementById('exerciseDate').value = today;
+                document.getElementById('waterDate').value = today;
+                document.getElementById('waterTime').value = now;
+            }
+
+            addExercise() {
+                const type = document.getElementById('exerciseType').value;
+                const duration = parseInt(document.getElementById('exerciseDuration').value);
+                const calories = parseInt(document.getElementById('caloriesBurned').value);
+                const date = document.getElementById('exerciseDate').value;
+
+                if (type && duration > 0 && calories > 0 && date) {
+                    const activity = {
+                        id: Date.now(),
+                        type: 'exercise',
+                        exerciseType: type,
+                        duration: duration,
+                        calories: calories,
+                        date: date,
+                        timestamp: new Date().toLocaleString('id-ID')
+                    };
+
+                    this.activities.push(activity);
+                    this.saveData();
+                    this.updateDisplay();
+
+                    // Reset form
+                    document.getElementById('exerciseForm').reset();
+                    this.setDefaultDates();
+
+                    this.showNotification(`${type} selama ${duration} menit berhasil dicatat!`, 'success');
+                }
+            }
+
+            addWater() {
+                const amount = parseInt(document.getElementById('waterAmount').value);
+                const time = document.getElementById('waterTime').value;
+                const date = document.getElementById('waterDate').value;
+                const notes = document.getElementById('waterNotes').value;
+
+                if (amount > 0 && time && date) {
+                    const activity = {
+                        id: Date.now(),
+                        type: 'water',
+                        amount: amount,
+                        time: time,
+                        date: date,
+                        notes: notes,
+                        timestamp: new Date().toLocaleString('id-ID')
+                    };
+
+                    this.activities.push(activity);
+                    this.saveData();
+                    this.updateDisplay();
+
+                    // Reset form
+                    document.getElementById('waterForm').reset();
+                    this.setDefaultDates();
+
+                    this.showNotification(`${amount}ml air berhasil dicatat!`, 'success');
+                }
+            }
+
+            deleteActivity(id) {
+                if (confirm('Yakin ingin menghapus aktivitas ini?')) {
+                    this.activities = this.activities.filter(a => a.id !== id);
+                    this.saveData();
+                    this.updateDisplay();
+                    this.showNotification('Aktivitas berhasil dihapus!', 'info');
+                }
+            }
+
+            updateDisplay() {
+                this.updateSummary();
+                this.updateActivityList();
+            }
+
+            updateSummary() {
+                const today = new Date().toISOString().split('T')[0];
+                const todayActivities = this.activities.filter(a => a.date === today);
+
+                const totalCalories = todayActivities
+                    .filter(a => a.type === 'exercise')
+                    .reduce((sum, a) => sum + a.calories, 0);
+
+                const totalExercise = todayActivities
+                    .filter(a => a.type === 'exercise')
+                    .reduce((sum, a) => sum + a.duration, 0);
+
+                const totalWater = todayActivities
+                    .filter(a => a.type === 'water')
+                    .reduce((sum, a) => sum + a.amount, 0);
+
+                // Update displays
+                document.getElementById('totalCalories').textContent = `${totalCalories} kcal`;
+                document.getElementById('totalExercise').textContent = `${totalExercise} menit`;
+                document.getElementById('totalWater').textContent = `${(totalWater/1000).toFixed(1)} L`;
+
+                // Update progress bars
+                this.updateProgressBar('caloriesProgress', totalCalories, this.targets.calories);
+                this.updateProgressBar('exerciseProgress', totalExercise, this.targets.exercise);
+                this.updateProgressBar('waterProgress', totalWater, this.targets.water);
+            }
+
+            updateProgressBar(elementId, current, target) {
+                const percentage = Math.min((current / target) * 100, 100);
+                document.getElementById(elementId).style.width = `${percentage}%`;
+            }
+
+            updateActivityList() {
+                const listElement = document.getElementById('activityList');
+                const today = new Date().toISOString().split('T')[0];
+                const todayActivities = this.activities.filter(a => a.date === today);
+                
+                if (todayActivities.length === 0) {
+                    listElement.innerHTML = '<div class="no-activities">Belum ada aktivitas hari ini. Mulai tambahkan latihan atau konsumsi air!</div>';
+                    return;
+                }
+
+                // Sort activities by timestamp (newest first)
+                const sortedActivities = [...todayActivities].sort((a, b) => b.id - a.id);
+
+                listElement.innerHTML = sortedActivities.map(activity => {
+                    if (activity.type === 'exercise') {
+                        return `
+                            <div class="activity-item exercise">
+                                <div class="activity-info">
+                                    <h4>${activity.exerciseType}</h4>
+                                    <p>${activity.duration} menit • ${activity.calories} kcal • ${activity.timestamp}</p>
+                                </div>
+                                <div class="activity-value exercise">
+                                    ${activity.duration}m
+                                    <button class="delete-btn" onclick="tracker.deleteActivity(${activity.id})">🗑️</button>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        return `
+                            <div class="activity-item water">
+                                <div class="activity-info">
+                                    <h4>Minum Air</h4>
+                                    <p>${activity.time} • ${activity.notes || 'Hidrasi harian'} • ${activity.timestamp}</p>
+                                </div>
+                                <div class="activity-value water">
+                                    ${activity.amount}ml
+                                    <button class="delete-btn" onclick="tracker.deleteActivity(${activity.id})">🗑️</button>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }).join('');
+            }
+
+            saveData() {
+                localStorage.setItem('fitActivities', JSON.stringify(this.activities));
+            }
+
+            showNotification(message, type) {
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: ${type === 'success' ? '#27ae60' : '#e74c3c'};
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 10px;
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                    z-index: 1000;
+                    font-weight: 500;
+                    opacity: 0;
+                    transform: translateY(-20px);
+                    transition: all 0.3s ease;
+                `;
+                notification.textContent = message;
+                document.body.appendChild(notification);
+
+                // Animate in
+                setTimeout(() => {
+                    notification.style.opacity = '1';
+                    notification.style.transform = 'translateY(0)';
+                }, 100);
+
+                // Remove after 3 seconds
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    notification.style.transform = 'translateY(-20px)';
+                    setTimeout(() => document.body.removeChild(notification), 300);
+                }, 3000);
+            }
+        }
+
+        // Initialize the app
+        const tracker = new FitTracker();
+    </script>
+</body>
+</html>
