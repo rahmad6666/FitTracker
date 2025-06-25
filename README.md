@@ -47,11 +47,6 @@ Aplikasi web sederhana untuk memantau aktivitas fitness dan hidrasi harian. Diba
 
 Tidak perlu instalasi! Cukup buka file `index.html` di browser modern (Chrome, Firefox, Edge).
 
-**Alternatif deploy**:
-1. **Netlify Drop**: Drag & drop file ke [https://app.netlify.com/drop](https://app.netlify.com/drop)
-2. **Vercel**: Import repository GitHub ke [https://vercel.com/](https://vercel.com/)
-3. **GitHub Pages**: Upload ke repository dan aktifkan GitHub Pages
-
 ## Teknologi
 
 - **HTML5** - Struktur aplikasi
